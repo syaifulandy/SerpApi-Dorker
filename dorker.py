@@ -73,16 +73,61 @@ def load_api_key(filename):
 
 
 
-def build_query(domains, keywords):
+def build_query(
+    domains,
+    keywords,
+    uppercase=False
+):
+
     domain_part = "(" + " OR ".join(
         f"site:{d}" for d in domains
     ) + ")"
 
-    keyword_part = "(" + " or ".join(
-        f'"{k}"' for k in keywords
-    ) + ")"
+    if uppercase:
 
-    return f"{domain_part} and {keyword_part}"
+        keyword_part = "(" + " OR ".join(
+            f'"{k}"' for k in keywords
+        ) + ")"
+
+        return (
+            f"{domain_part} "
+            f"AND "
+            f"{keyword_part}"
+        )
+
+    else:
+
+        keyword_part = "(" + " or ".join(
+            f'"{k}"' for k in keywords
+        ) + ")"
+
+        return (
+            f"{domain_part} "
+            f"and "
+            f"{keyword_part}"
+        )
+def add_query_variants(
+    queries,
+    domains,
+    keywords
+):
+
+    queries.append(
+        build_query(
+            domains,
+            keywords,
+            uppercase=False
+        )
+    )
+
+    queries.append(
+        build_query(
+            domains,
+            keywords,
+            uppercase=True
+        )
+    )
+
 def actual_query_words(query):
     return len(
         query
@@ -161,22 +206,19 @@ def generate_queries(domains, keywords):
 
                 if current_keywords:
 
-                    queries.append(
-                        build_query(
-                            d_chunk,
-                            current_keywords
-                        )
+                    add_query_variants(
+                        queries,
+                        d_chunk,
+                        current_keywords
                     )
-
                 current_keywords = [kw]
 
         if current_keywords:
 
-            queries.append(
-                build_query(
-                    d_chunk,
-                    current_keywords
-                )
+            add_query_variants(
+                queries,
+                d_chunk,
+                current_keywords
             )
 
     return queries
