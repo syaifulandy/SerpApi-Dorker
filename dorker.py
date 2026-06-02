@@ -253,15 +253,21 @@ def save_json(filename, data):
         return False
 
 
-def append_hits(results, filename):
+def append_hits(results, filename, query):
     try:
         organic = results.get("organic_results", [])
 
         with open(filename, "a", encoding="utf-8") as f:
             for item in organic:
-                url = item.get("link")
+                url = item.get("link", "")
+                snippet = item.get("snippet", "")
+
                 if url:
-                    f.write(url + "\n")
+                    snippet = snippet.replace("\n", " ")
+
+                    f.write(
+                        f"{query};{url};{snippet}\n"
+                    )
 
     except Exception:
         pass
@@ -270,7 +276,7 @@ def append_hits(results, filename):
 def search(api_key, query):
     client = serpapi.Client(api_key=api_key)
 
-    return client.search({
+    results = client.search({
         "engine": "google",
         "google_domain": "google.com",
         "q": query,
@@ -278,6 +284,7 @@ def search(api_key, query):
         "filter": "0"
     })
 
+    return results.as_dict()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -394,7 +401,8 @@ def main():
 
             append_hits(
                 results,
-                hits_file
+                hits_file,
+                query
             )
 
             total = (
