@@ -1,34 +1,6 @@
-````markdown
 # SerpAPI Dorker
 
-Generate Google dork queries from large domain and keyword lists, automatically split oversized queries to stay within Google's search query limits, then search them through SerpAPI and collect the results.
-
-## Features
-
-- Load domains from `domain.txt`
-- Load keywords from `query.txt`
-- Load SerpAPI key from `apikey.txt`
-- Remove duplicate domains and keywords automatically
-- Generate Google dorks in the format:
-
-```text
-(site:example.com OR site:test.com) and ("keyword1" or "keyword2")
-```
-
-- Automatically split large domain and keyword lists into multiple valid queries
-- Prevent oversized Google queries by enforcing a configurable word limit (default: 30 words)
-- Save generated dorks to `generated_queries.txt`
-- Search generated dorks using SerpAPI
-- Save raw JSON responses for every query
-- Extract discovered URLs into `hits.txt`
-- Graceful error handling for:
-  - Missing files
-  - Empty files
-  - Invalid API keys
-  - API failures
-  - User interruptions
-
----
+Generate Google dorks from a list of domains and keywords, automatically splitting queries to stay within Google's search query limits.
 
 ## Example
 
@@ -52,65 +24,46 @@ gacor
 (site:go.id OR site:ac.id) and ("slot" or "gacor")
 ```
 
----
+## Features
+
+- Generate Google dorks from domain and keyword lists
+- Automatically remove duplicate domains and keywords
+- Automatically split oversized queries
+- Keep generated queries below Google's practical query length limits
+- Save generated dorks to `generated_queries.txt`
+- Search generated dorks using SerpAPI
+- Save raw JSON responses
+- Extract discovered URLs into `hits.txt`
+- Support custom input/output files
 
 ## Installation
-
-Install the SerpAPI Python package:
 
 ```bash
 pip3 install serpapi
 ```
 
----
-
-## File Structure
-
-```text
-.
-├── dorker.py
-├── apikey.txt
-├── domain.txt
-├── query.txt
-├── generated_queries.txt
-├── hits.txt
-└── results/
-```
-
----
-
 ## Usage
 
-### Default Files
-
-Uses:
-
-- `apikey.txt`
-- `domain.txt`
-- `query.txt`
+Default files:
 
 ```bash
 python3 dorker.py
 ```
 
-### Custom Files
+Custom files:
 
 ```bash
 python3 dorker.py \
-  -a myapikey.txt \
-  -d domains.txt \
-  -q keywords.txt
+  -a apikey.txt \
+  -d domain.txt \
+  -q query.txt
 ```
 
-### Generate Queries Only
-
-Skip SerpAPI searches and only generate dorks:
+Generate queries only:
 
 ```bash
 python3 dorker.py --no-search
 ```
-
----
 
 ## Output
 
@@ -118,98 +71,28 @@ python3 dorker.py --no-search
 
 Generated Google dorks.
 
-Example:
-
-```text
-(site:example1.com OR site:example2.com) and ("keyword1" or "keyword2")
-(site:example3.com OR site:example4.com) and ("keyword1" or "keyword2")
-```
-
 ### hits.txt
 
-Extracted URLs from organic search results.
-
-Example:
-
-```text
-https://example.com/page1
-https://example.com/page2
-https://example.com/page3
-```
+Collected URLs from search results.
 
 ### results/
 
 Raw SerpAPI JSON responses.
 
-```text
-results/
-├── query_1.json
-├── query_2.json
-├── query_3.json
-└── ...
-```
+## Why?
 
----
+Google does not reliably process very large search queries.
 
-## Query Splitting Logic
-
-Google queries have practical limits on the number of words/operators that can be processed reliably.
-
-This tool automatically:
-
-1. Deduplicates domains and keywords.
-2. Calculates query size.
-3. Splits domain groups when necessary.
-4. Splits keyword groups if they still exceed the limit.
-5. Generates multiple valid dorks instead of creating oversized queries.
-
-Example:
+Instead of generating a single oversized query such as:
 
 ```text
-49 domains
-2 keywords
+(site:domain1.com OR site:domain2.com OR ... site:domain50.com) and ("slot" or "gacor")
 ```
 
-Instead of generating:
-
-```text
-(site:49-domains...) and ("slot" or "gacor")
-```
-
-The tool generates multiple smaller queries:
-
-```text
-(site:d1 OR ... d14) and ("slot" or "gacor")
-(site:d15 OR ... d28) and ("slot" or "gacor")
-(site:d29 OR ... d42) and ("slot" or "gacor")
-(site:d43 OR ... d49) and ("slot" or "gacor")
-```
-
----
-
-## Use Cases
-
-- Website compromise hunting
-- Defacement discovery
-- SEO spam detection
-- Keyword exposure monitoring
-- OSINT investigations
-- Large-scale Google dorking
-- Security research
-- Domain portfolio monitoring
-
----
+the tool automatically splits it into multiple smaller queries that remain within Google's practical limits.
 
 ## Disclaimer
 
-This tool is intended for authorized security testing, OSINT, monitoring, and research purposes only.
+This tool is intended for security research, OSINT, and authorized testing activities only.
 
-The user is solely responsible for ensuring compliance with:
-
-- Applicable laws and regulations
-- Google's Terms of Service
-- SerpAPI Terms of Service
-- Target organization authorization requirements
-
-Use responsibly.
-````
+Users are responsible for complying with applicable laws, Google's Terms of Service, SerpAPI Terms of Service, and any authorization requirements of the target organizations.
